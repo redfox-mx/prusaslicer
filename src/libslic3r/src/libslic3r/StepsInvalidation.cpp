@@ -214,6 +214,7 @@ const std::map<std::string, std::vector<Step>> invalidated_by{
     {"extruder_offset", steps({propagate(psGCodeExport)})},
     {"extrusion_axis", steps({propagate(psGCodeExport)})},
     {"extrusion_multiplier", steps({propagate(psGCodeExport)})},
+    {"object_extrusion_ratio", steps({propagate(psGCodeExport)})},
     {"extrusion_width", all_steps()},
     {"fan_always_on", steps({propagate(psGCodeExport)})},
     {"fan_below_layer_time", steps({propagate(psGCodeExport)})},
@@ -368,14 +369,13 @@ const std::map<std::string, std::vector<Step>> invalidated_by{
     {"min_bead_width", steps({propagate(posSlice)})},
     {"min_fan_speed", steps({propagate(psGCodeExport)})},
     {"min_feature_size", steps({propagate(posSlice)})},
-    {"min_layer_height",
-     steps(
-         {propagate(posSlice),
-          propagate(posPerimeters),
-          propagate(posInfill),
-          propagate(posSupportMaterial),
-          propagate(psSkirtBrim)}
-     )},
+    {"min_layer_height", steps({
+        propagate(posSlice),
+        propagate(posPerimeters),
+        propagate(posInfill),
+        propagate(posSupportMaterial),
+        propagate(psSkirtBrim)
+    })},
     {"min_print_speed", steps({propagate(psGCodeExport)})},
     {"min_skirt_length", steps({propagate(psSkirtBrim)})},
     {"mmu_segmented_region_interlocking_depth", steps({propagate(posSlice)})},

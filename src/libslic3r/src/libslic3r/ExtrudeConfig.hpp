@@ -36,6 +36,7 @@ struct ExtrudeConfig
     std::vector<bool> retract_layer_change{};
     double travel_acceleration{};
     double travel_short_distance_acceleration{};
+    double object_extrusion_ratio{};
 
     std::vector<double> max_volumetric_speed{};
     std::vector<double> filament_max_volumetric_speed{};
