@@ -3440,13 +3440,15 @@ std::string GCodeGenerator::travel_to_first_position(
 double cap_speed(
     double speed, const Biz::Slicing::ExtrudeConfig &config, int extruder_id, const ExtrusionAttributes &path_attr
 ) {
+    const double extrusion_ratio = (config.object_extrusion_ratio > 0.) ? config.object_extrusion_ratio : 1.0;
     const double general_volumetric_cap{config.max_volumetric_speed.at(extruder_id)};
+
     if (general_volumetric_cap > 0) {
-        speed = std::min(speed, general_volumetric_cap / path_attr.mm3_per_mm);
+        speed = std::min(speed, general_volumetric_cap / (path_attr.mm3_per_mm * extrusion_ratio));
     }
     const double filament_volumetric_cap{config.filament_max_volumetric_speed.at(extruder_id)};
     if (filament_volumetric_cap > 0) {
-        speed = std::min(speed, filament_volumetric_cap / path_attr.mm3_per_mm);
+        speed = std::min(speed, filament_volumetric_cap / (path_attr.mm3_per_mm * extrusion_ratio));
     }
     if (path_attr.role == ExtrusionRole::InternalInfill) {
         const double infill_cap{
@@ -3542,7 +3544,8 @@ std::string GCodeGenerator::_extrude(
     }
 
     // calculate extrusion length per distance unit
-    double e_per_mm = m_writer.extruder()->e_per_mm3() * path_attr.mm3_per_mm;
+    const double extrusion_ratio = (config.object_extrusion_ratio > 0.) ? config.object_extrusion_ratio : 1.0;
+    double e_per_mm = m_writer.extruder()->e_per_mm3() * path_attr.mm3_per_mm * extrusion_ratio;
     if (m_writer.extrusion_axis().empty())
         // gcfNoExtrusion
         e_per_mm = 0;
