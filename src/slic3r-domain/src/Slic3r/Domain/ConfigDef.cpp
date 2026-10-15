@@ -188,6 +188,8 @@ std::string ConfigItemDef::translate_option_group(OptionGroup option_group)
         return L("Retraction");
     case ConfigItemDef::OptionGroup::Print_ExtrusionRetraction_IdleToolRetraction:
         return L("Idle tool retraction");
+    case ConfigItemDef::OptionGroup::Print_ExtrusionRetraction_AdvancedExtrusion:
+        return L("Extrusion");
     case ConfigItemDef::OptionGroup::Print_MultiMaterial_ExtruderAssignment:
         return L("Extruder assignment");
     case ConfigItemDef::OptionGroup::Print_MultiMaterial_OozePrevention:

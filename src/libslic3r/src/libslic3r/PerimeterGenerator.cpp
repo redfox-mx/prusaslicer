@@ -1612,9 +1612,10 @@ PerimeterRegion::PerimeterRegion(const LayerRegion &layer_region) : region(&laye
 
 bool PerimeterRegion::has_compatible_perimeter_regions(const PrintRegionConfigView &config, const PrintRegionConfigView &other_config)
 {
-    return config.get<Domain::FuzzySkinType>("fuzzy_skin") == other_config.get<Domain::FuzzySkinType>("fuzzy_skin") &&
-           config.get<double>("fuzzy_skin_thickness")  == other_config.get<double>("fuzzy_skin_thickness") &&
-           config.get<double>("fuzzy_skin_point_dist") == other_config.get<double>("fuzzy_skin_point_dist");
+    return config.get<Domain::FuzzySkinType>("fuzzy_skin") == other_config.get<Domain::FuzzySkinType>("fuzzy_skin")
+        && config.get<double>("fuzzy_skin_thickness")  == other_config.get<double>("fuzzy_skin_thickness")
+        && config.get<double>("fuzzy_skin_point_dist") == other_config.get<double>("fuzzy_skin_point_dist")
+        && config.get<double>("object_extrusion_ratio") == other_config.get<double>("object_extrusion_ratio");
 }
 
 void PerimeterRegion::merge_compatible_perimeter_regions(PerimeterRegions &perimeter_regions)
