@@ -88,6 +88,9 @@ struct ExtrudeConfig
     bool only_retract_when_crossing_perimeters{};
     bool avoid_crossing_perimeters{};
     bool avoid_crossing_curled_overhangs{};
+
+    Domain::InfillPattern top_fill_pattern{};
+    Domain::InfillPattern bottom_fill_pattern{};
 };
 
 } // namespace Slic3r::Biz::Slicing
