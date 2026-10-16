@@ -1176,6 +1176,12 @@ Domain::ExtraPrintStatistics GCodeGenerator::_do_export(
         std::make_unique<CoolingBuffer>(*this, Biz::Slicing::CoolingBufferConfig{print.config()});
     m_cooling_buffer->set_current_extruder(initial_extruder_id);
 
+    if (print.config().get<bool>("small_area_infill_flow_compensation")) {
+        m_small_area_infill_flow_compensator = std::make_unique<SmallAreaInfillFlowCompensator>(
+            print.config().get<std::vector<std::string>>("small_area_infill_flow_compensation_model")
+        );
+    }
+
     // Emit machine envelope limits for the Marlin firmware.
     this->print_machine_envelope(file, print);
 
@@ -3463,6 +3469,29 @@ double cap_speed(
     return speed;
 }
 
+
+bool GCodeGenerator::_need_small_area_flow_compensation(ExtrusionRole role, const Biz::Slicing::ExtrudeConfig& config) const
+{
+    if (!m_small_area_infill_flow_compensator || !m_print->config().get<bool>("small_area_infill_flow_compensation"))
+        return false;
+
+    auto is_supported = [](Domain::InfillPattern pattern) {
+        return pattern == Domain::InfillPattern::ipRectilinear ||
+               pattern == Domain::InfillPattern::ipMonotonic ||
+               pattern == Domain::InfillPattern::ipMonotonicLines ||
+               pattern == Domain::InfillPattern::ipAlignedRectilinear;
+    };
+
+    if (role == ExtrusionRole::TopSolidInfill) {
+        return is_supported(config.top_fill_pattern);
+    }
+    if (role == ExtrusionRole::SolidInfill && this->on_first_layer()) {
+        return is_supported(config.bottom_fill_pattern);
+    }
+
+    return false;
+}
+
 std::string GCodeGenerator::_extrude(
     const ExtrusionAttributes& path_attr,
     const Geometry::ArcWelder::Path& path,
@@ -3742,6 +3771,10 @@ std::string GCodeGenerator::_extrude(
                 // Extrude line segment.
                 if (const double line_length = (p - prev).norm(); line_length > 0) {
                     double extrusion_amount{e_per_mm * line_length * it->e_fraction};
+                    if (this->_need_small_area_flow_compensation(path_attr.role, config)) {
+                        extrusion_amount = m_small_area_infill_flow_compensator->modify_flow(
+                            line_length, extrusion_amount, path_attr.role);
+                    }
                     if (it->height_fraction < 1.0 || std::prev(it)->height_fraction < 1.0) {
                         const Vec3d destination{to_3d(p, this->m_last_layer_z + (it->height_fraction - 1) * m_last_height)};
                         gcode += m_writer.extrude_to_xyz(destination, extrusion_amount);
@@ -3753,8 +3786,11 @@ std::string GCodeGenerator::_extrude(
                 double angle = Geometry::ArcWelder::arc_angle(prev.cast<double>(), p.cast<double>(), double(radius));
                 assert(angle > 0);
                 const double line_length = angle * std::abs(radius);
-                const double dE          = e_per_mm * line_length;
+                double dE          = e_per_mm * line_length;
                 assert(dE > 0);
+                if (this->_need_small_area_flow_compensation(path_attr.role, config)) {
+                    dE = m_small_area_infill_flow_compensator->modify_flow(line_length, dE, path_attr.role);
+                }
                 gcode += m_writer.extrude_to_xy_G2G3IJ(p, ij, it->ccw(), dE, comment);
             }
             prev = p;

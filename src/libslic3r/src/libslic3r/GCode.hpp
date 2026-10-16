@@ -21,6 +21,7 @@
 #include "libslic3r/GCode/SmoothPath.hpp"
 #include "libslic3r/GCode/SpiralVase.hpp"
 #include "libslic3r/GCode/ToolOrdering.hpp"
+#include "libslic3r/GCode/SmallAreaInfillFlowCompensator.hpp"
 #include "libslic3r/GCode/Wipe.hpp"
 #include "libslic3r/GCode/WipeTowerIntegration.hpp"
 #include "libslic3r/GCode/SeamPlacer.hpp"
@@ -460,6 +461,7 @@ private:
     std::unique_ptr<GCodeFindReplace>   m_find_replace;
     std::unique_ptr<PressureEqualizer>  m_pressure_equalizer;
     std::unique_ptr<GCode::WipeTowerIntegration> m_wipe_tower;
+    std::unique_ptr<SmallAreaInfillFlowCompensator> m_small_area_infill_flow_compensator;
 
     // Current fan speed set by dynamic fan speed control.
     std::optional<float>                m_current_dynamic_fan_speed;
@@ -506,6 +508,7 @@ private:
     void                                _print_first_layer_chamber_temperature(GCodeOutputStream &file, const Print &print, const std::string &gcode, int temp, bool wait, bool accurate);
     void                                _print_first_layer_bed_temperature(GCodeOutputStream &file, const Print &print, const std::string &gcode, unsigned int first_printing_extruder_id, bool wait);
     void                                _print_first_layer_extruder_temperatures(GCodeOutputStream &file, const Print &print, const std::string &gcode, unsigned int first_printing_extruder_id, bool wait);
+    bool                                _need_small_area_flow_compensation(ExtrusionRole role, const Biz::Slicing::ExtrudeConfig& config) const;
     // On the first printing layer. This flag triggers first layer speeds.
     bool                                on_first_layer() const { return m_layer != nullptr && m_layer->id() == 0; }
     // To control print speed of 1st object layer over raft interface.
