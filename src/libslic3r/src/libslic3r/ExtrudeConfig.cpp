@@ -107,7 +107,9 @@ ExtrudeConfig::ExtrudeConfig(const Domain::ConfigView& config) :
     },
     avoid_crossing_perimeters{config.get<bool>("avoid_crossing_perimeters")},
     avoid_crossing_curled_overhangs{config.get<bool>("avoid_crossing_curled_overhangs")},
-    object_extrusion_ratio{config.get<double>("object_extrusion_ratio")}
+    object_extrusion_ratio{config.get<double>("object_extrusion_ratio")},
+    top_fill_pattern{config.get<Domain::InfillPattern>("top_fill_pattern")},
+    bottom_fill_pattern{config.get<Domain::InfillPattern>("bottom_fill_pattern")}
 {}
 
 } // namespace Slic3r::Biz::Slicing
