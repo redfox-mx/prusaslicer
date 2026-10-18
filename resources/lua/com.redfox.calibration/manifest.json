@@ -1,0 +1,13 @@
+{
+    "id": "com.redfox.calibration",
+    "name": "Calibration Tests by redfox-mx",
+    "license": "AGPL-3.0-only",
+    "min_slicer_version": "3.0.0",
+    "version": "0.0.1",
+    "author": "Diego Hernandez (redfox-mx)",
+    "description": "Calibration plugins based on OrcaSlicer",
+    "required_apis": {
+        "project.plugin": "1.0.0"
+    },
+    "category": "calibration"
+}
